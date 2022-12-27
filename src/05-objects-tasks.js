@@ -117,32 +117,76 @@ function fromJSON(proto, json) {
  */
 
 const cssSelectorBuilder = {
-  element(/* value */) {
-    throw new Error('Not implemented');
+  str: '',
+  order: -1,
+  norepeat: 'Element, id and pseudo-element should not occur more then one time inside the selector',
+  rightOrder: 'Selector parts should be arranged in the following order: element, id, class, attribute, pseudo-class, pseudo-element',
+
+  element(value) {
+    const builder = Object.create(cssSelectorBuilder);
+    if (this.order === 0) throw new Error(builder.norepeat);
+    if (this.order > 0) throw new Error(builder.rightOrder);
+    builder.order = 0;
+    builder.str = this.str.concat(value);
+    return builder;
+    // throw new Error('Not implemented');
   },
 
-  id(/* value */) {
-    throw new Error('Not implemented');
+  id(value) {
+    const builder = Object.create(cssSelectorBuilder);
+    if (this.order === 1) throw new Error(builder.norepeat);
+    if (this.order > 1) throw new Error(builder.rightOrder);
+    builder.order = 1;
+    builder.str = this.str.concat(`#${value}`);
+    return builder;
+    // throw new Error('Not implemented');
   },
 
-  class(/* value */) {
-    throw new Error('Not implemented');
+  class(value) {
+    const builder = Object.create(cssSelectorBuilder);
+    if (this.order > 2) throw new Error(builder.rightOrder);
+    builder.order = 2;
+    builder.str = this.str.concat(`.${value}`);
+    return builder;
+    // throw new Error('Not implemented');
   },
 
-  attr(/* value */) {
-    throw new Error('Not implemented');
+  attr(value) {
+    const builder = Object.create(cssSelectorBuilder);
+    if (this.order > 3) throw new Error(builder.rightOrder);
+    builder.order = 3;
+    builder.str = this.str.concat(`[${value}]`);
+    return builder;
+    // throw new Error('Not implemented');
   },
 
-  pseudoClass(/* value */) {
-    throw new Error('Not implemented');
+  pseudoClass(value) {
+    const builder = Object.create(cssSelectorBuilder);
+    if (this.order > 4) throw new Error(builder.rightOrder);
+    builder.order = 4;
+    builder.str = this.str.concat(`:${value}`);
+    return builder;
+    // throw new Error('Not implemented');
   },
 
-  pseudoElement(/* value */) {
-    throw new Error('Not implemented');
+  pseudoElement(value) {
+    const builder = Object.create(cssSelectorBuilder);
+    if (this.order === 5) throw new Error(builder.norepeat);
+    if (this.order > 5) throw new Error(builder.rightOrder);
+    builder.order = 5;
+    builder.str = this.str.concat(`::${value}`);
+    return builder;
   },
 
-  combine(/* selector1, combinator, selector2 */) {
-    throw new Error('Not implemented');
+  combine(selector1, combinator, selector2) {
+    const builder = Object.create(cssSelectorBuilder);
+    builder.str = `${selector1.str} ${combinator} ${selector2.str}`;
+    return builder;
+    // throw new Error('Not implemented');
+  },
+
+  stringify() {
+    return this.str;
   },
 };
 
